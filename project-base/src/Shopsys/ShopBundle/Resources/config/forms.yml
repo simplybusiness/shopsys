@@ -6,3 +6,7 @@ services:
 
   Shopsys\ShopBundle\Form\:
       resource: '../../Form/'
+
+  Shopsys\ShopBundle\Form\Admin\Product\GoogleProductFormTypeExtension:
+    tags:
+    - { name: form.type_extension, extended_type: Shopsys\ProductFeed\GoogleBundle\GoogleProductFormType }

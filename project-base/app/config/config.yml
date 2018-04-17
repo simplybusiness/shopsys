@@ -57,6 +57,12 @@ doctrine:
         alias: ShopsysFrameworkBundleComponent
         prefix: Shopsys\FrameworkBundle\Component
         is_bundle: false
+      ShopsysShopBundle:
+        type: annotation
+        dir: '%shopsys.root_dir%/src/Shopsys/ShopBundle/Model'
+        alias: ShopsysShopBundle
+        prefix: Shopsys\ShopBundle\Model
+        is_bundle: false
     hydrators:
       GroupedScalarHydrator: \Shopsys\FrameworkBundle\Component\Doctrine\GroupedScalarHydrator
 
@@ -89,6 +95,12 @@ framework:
     enabled: false
     collect: false
   assets: ~
+
+#joschi127_doctrine_entity_override:
+#  overridden_entities:
+    # Keep in mind: if you are using multi level inheritance, you have to use the top most super class on the
+    # left side
+#    Shopsys\ProductFeed\GoogleBundle\Model\Product\GoogleProductDomain: Shopsys\ShopBundle\Model\Product\GoogleProduct
 
 monolog:
   channels: ["cron", "slow"]

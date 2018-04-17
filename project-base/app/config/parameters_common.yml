@@ -16,3 +16,6 @@ parameters:
   shopsys.performance_test.feed.max_duration_seconds: 180
   shopsys.performance_test.feed.delivery.max_duration_seconds: 20
   shopsys.performance_test.feed.min_duration_seconds: 5
+  shopsys.entity_extension.map:
+    Shopsys\ProductFeed\GoogleBundle\Model\Product\GoogleProductDomain: Shopsys\ShopBundle\Model\Product\GoogleProduct
+    Shopsys\ProductFeed\GoogleBundle\Model\Product\GoogleProductDomainData: Shopsys\ShopBundle\Model\Product\GoogleProductData
