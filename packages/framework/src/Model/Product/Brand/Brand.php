@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Prezent\Doctrine\Translatable\Annotation as Prezent;
 use Shopsys\FrameworkBundle\Model\Localization\AbstractTranslatableEntity;
+use Shopsys\FrameworkBundle\Model\Product\Brand\Exception\BrandDomainNotFoundException;
 
 /**
  * @ORM\Table(name="brands")
@@ -37,13 +38,22 @@ class Brand extends AbstractTranslatableEntity
     protected $translations;
 
     /**
+     * @var \Shopsys\FrameworkBundle\Model\Product\Brand\BrandDomain[]|\Doctrine\Common\Collections\ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Shopsys\FrameworkBundle\Model\Product\Brand\BrandDomain", mappedBy="brand", cascade={"persist"}, fetch="EXTRA_LAZY")
+     */
+    protected $domains;
+
+    /**
      * @param \Shopsys\FrameworkBundle\Model\Product\Brand\BrandData $brandData
      */
     public function __construct(BrandData $brandData)
     {
         $this->name = $brandData->name;
         $this->translations = new ArrayCollection();
+        $this->domains = new ArrayCollection();
         $this->setTranslations($brandData);
+        $this->setDomains($brandData);
     }
 
     /**
@@ -69,6 +79,7 @@ class Brand extends AbstractTranslatableEntity
     {
         $this->name = $brandData->name;
         $this->setTranslations($brandData);
+        $this->setDomains($brandData);
     }
 
     /**
@@ -89,6 +100,67 @@ class Brand extends AbstractTranslatableEntity
     protected function createTranslation()
     {
         return new BrandTranslation();
+    }
+
+    /**
+     * @param \Shopsys\FrameworkBundle\Model\Product\Brand\BrandData $brandData
+     */
+    protected function setDomains(BrandData $brandData)
+    {
+        $domainIds = array_keys($brandData->seoTitles);
+        foreach ($domainIds as $domainId) {
+            try {
+                $brandDomain = $this->getBrandDomain($domainId);
+            } catch (BrandDomainNotFoundException $e) {
+                $brandDomain = new BrandDomain($this, $domainId);
+            }
+            $brandDomain->setSeoTitle($brandData->seoTitles[$domainId]);
+            $brandDomain->setSeoH1($brandData->seoH1s[$domainId]);
+            $brandDomain->setSeoMetaDescription($brandData->seoMetaDescriptions[$domainId]);
+            $this->domains[] = $brandDomain;
+        }
+    }
+
+    /**
+     * @param int $domainId
+     * @return \Shopsys\FrameworkBundle\Model\Product\Brand\BrandDomain
+     */
+    protected function getBrandDomain(int $domainId)
+    {
+        foreach ($this->domains as $domain) {
+            if ($domain->getDomainId() === $domainId) {
+                return $domain;
+            }
+        }
+
+        throw new BrandDomainNotFoundException($this->getId(), $domainId);
+    }
+
+    /**
+     * @param int $domainId
+     * @return string|null
+     */
+    public function getSeoTitle(int $domainId)
+    {
+        return $this->getBrandDomain($domainId)->getSeoTitle();
+    }
+
+    /**
+     * @param int $domainId
+     * @return string|null
+     */
+    public function getSeoMetaDescription(int $domainId)
+    {
+        return $this->getBrandDomain($domainId)->getSeoMetaDescription();
+    }
+
+    /**
+     * @param int $domainId
+     * @return string|null
+     */
+    public function getSeoH1(int $domainId)
+    {
+        return $this->getBrandDomain($domainId)->getSeoH1();
     }
 
     /**

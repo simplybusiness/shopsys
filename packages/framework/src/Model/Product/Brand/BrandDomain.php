@@ -11,10 +11,18 @@ use Doctrine\ORM\Mapping as ORM;
 class BrandDomain
 {
     /**
+     * @var int
+     *
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    protected $id;
+
+    /**
      * @var \Shopsys\FrameworkBundle\Model\Product\Brand\Brand
      *
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="Shopsys\FrameworkBundle\Model\Product\Brand\Brand")
+     * @ORM\ManyToOne(targetEntity="Shopsys\FrameworkBundle\Model\Product\Brand\Brand", inversedBy="domains")
      * @ORM\JoinColumn(nullable=false, name="brand_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $brand;
@@ -22,7 +30,6 @@ class BrandDomain
     /**
      * @var int
      *
-     * @ORM\Id
      * @ORM\Column(type="integer")
      */
     protected $domainId;
