@@ -61,9 +61,19 @@ services:
 
   Shopsys\FrameworkBundle\Component\Domain\Config\DomainsConfigLoader: ~
 
+  Shopsys\FrameworkBundle\Component\Domain\Domain:
+    factory: ['@Shopsys\FrameworkBundle\Component\Domain\DomainFactory', create]
+    arguments:
+      - '%shopsys.domain_config_filepath%'
+      - '%shopsys.domain_urls_config_filepath%'
+
   Shopsys\FrameworkBundle\Component\Domain\DomainDataCreator: ~
 
   Shopsys\FrameworkBundle\Component\Domain\DomainDbFunctionsFacade:
+
+  Shopsys\FrameworkBundle\Component\Doctrine\DatabaseSchemaFacade:
+    arguments:
+      - '%shopsys.default_db_schema_filepath%'
 
   Shopsys\FrameworkBundle\Component\Doctrine\EntityManagerFacade: ~
 
