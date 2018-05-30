@@ -35,7 +35,9 @@ services:
       - '@doctrine.dbal.default_connection'
       - '@doctrine.orm.default_configuration'
 
-  Doctrine\DBAL\Migrations\Configuration\Configuration: ~
+  Doctrine\DBAL\Migrations\Configuration\Configuration:
+    arguments:
+      $finder: '@Shopsys\MigrationBundle\Component\Doctrine\Migrations\PrototypeFinder'
 
   Doctrine\Common\Cache\ChainCache: ~
 

@@ -8,9 +8,6 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class MigrationsLocator
 {
-    const MIGRATIONS_DIRECTORY = 'Migrations';
-    const MIGRATIONS_NAMESPACE = 'Migrations';
-
     /**
      * @var \Symfony\Component\HttpKernel\KernelInterface
      */
@@ -32,13 +29,15 @@ class MigrationsLocator
     }
 
     /**
+     * @param string $relativeDirectory
+     * @param string $relativeNamespace
      * @return \Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocation[]
      */
-    public function getMigrationsLocations()
+    public function getMigrationsLocations(string $relativeDirectory, string $relativeNamespace)
     {
         $migrationsLocations = [];
         foreach ($this->kernel->getBundles() as $bundle) {
-            $migrationsLocation = $this->createMigrationsLocation($bundle);
+            $migrationsLocation = $this->createMigrationsLocation($bundle, $relativeDirectory, $relativeNamespace);
             if ($this->filesystem->exists($migrationsLocation->getDirectory())) {
                 $migrationsLocations[] = $migrationsLocation;
             }
@@ -49,13 +48,15 @@ class MigrationsLocator
 
     /**
      * @param \Symfony\Component\HttpKernel\Bundle\BundleInterface $bundle
+     * @param string $relativeDirectory
+     * @param string $relativeNamespace
      * @return \Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocation
      */
-    public function createMigrationsLocation(BundleInterface $bundle)
+    public function createMigrationsLocation(BundleInterface $bundle, string $relativeDirectory, string $relativeNamespace)
     {
         return new MigrationsLocation(
-            $bundle->getPath() . '/' . self::MIGRATIONS_DIRECTORY,
-            $bundle->getNamespace() . '\\' . self::MIGRATIONS_NAMESPACE
+            $bundle->getPath() . '/' . $relativeDirectory,
+            $bundle->getNamespace() . '\\' . $relativeNamespace
         );
     }
 }

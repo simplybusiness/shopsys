@@ -3,10 +3,12 @@
 namespace Shopsys\MigrationBundle\Command;
 
 use Doctrine\DBAL\Migrations\Configuration\Configuration;
+use Doctrine\DBAL\Migrations\Finder\RecursiveRegexFinder;
 use Doctrine\DBAL\Migrations\OutputWriter;
 use Doctrine\DBAL\Migrations\Tools\Console\Helper\ConfigurationHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocator;
+use Shopsys\MigrationBundle\Component\Doctrine\Migrations\PrototypeFinder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -38,11 +40,6 @@ class MigrateCommand extends Command
      */
     private $migrationsLocator;
 
-    /**
-     * @param \Doctrine\ORM\EntityManagerInterface $em
-     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-     * @param \Shopsys\MigrationBundle\Component\Doctrine\Migrations\MigrationsLocator $migrationsLocator
-     */
     public function __construct(
         EntityManagerInterface $em,
         ContainerInterface $container,
@@ -72,18 +69,26 @@ class MigrateCommand extends Command
         try {
             $migrationsConfiguration = $this->createAndRegisterMigrationsConfiguration($output);
 
-            foreach ($this->migrationsLocator->getMigrationsLocations() as $migrationsLocation) {
-                $migrationsConfiguration->setMigrationsDirectory($migrationsLocation->getDirectory());
-                $migrationsConfiguration->setMigrationsNamespace($migrationsLocation->getNamespace());
+            // For some reason the wiring in service.yml didn't help - let's inject it now
+            $migrationsConfiguration->setMigrationsFinder(new PrototypeFinder($this->migrationsLocator, new RecursiveRegexFinder()));
 
-                $output->writeln('Installing migrations from ' . $migrationsLocation->getDirectory() . ' in namespace ' . $migrationsLocation->getNamespace());
+            // We are using relative paths - see changes in MigrationsLocator (this should be in the config files, not here)
+            $migrationsConfiguration->setMigrationsDirectory('Migrations');
+            $migrationsConfiguration->setMigrationsNamespace('Migrations');
+
+            // Let's not use the foreach, $finder does the work instead
+            //foreach ($this->migrationsLocator->getMigrationsLocations() as $migrationsLocation) {
+            //    $migrationsConfiguration->setMigrationsDirectory($migrationsLocation->getDirectory());
+            //    $migrationsConfiguration->setMigrationsNamespace($migrationsLocation->getNamespace());
+
+            //    $output->writeln('Installing migrations from ' . $migrationsLocation->getDirectory() . ' in namespace ' . $migrationsLocation->getNamespace());
 
                 $this->em->transactional(function () use ($output) {
                     $this->executeDoctrineMigrateCommand($output);
 
                     $output->writeln('');
                 });
-            }
+            //}
 
             $output->writeln('Migrations from all sources has been installed.');
 
