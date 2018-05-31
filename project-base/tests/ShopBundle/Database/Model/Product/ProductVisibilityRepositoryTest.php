@@ -43,6 +43,16 @@ class ProductVisibilityRepositoryTest extends DatabaseTestCase
         $productData->categoriesByDomainId = [1 => [$category]];
         $productData->availability = $this->getReference(AvailabilityDataFixture::AVAILABILITY_IN_STOCK);
         $productData->unit = $this->getReference(UnitDataFixture::UNIT_PIECES);
+        $productData->descriptions[1] = null;
+        $productData->descriptions[2] = null;
+        $productData->shortDescriptions[1] = null;
+        $productData->shortDescriptions[2] = null;
+        $productData->seoH1s[1] = null;
+        $productData->seoH1s[2] = null;
+        $productData->seoTitles[1] = null;
+        $productData->seoTitles[2] = null;
+        $productData->seoMetaDescriptions[1] = null;
+        $productData->seoMetaDescriptions[2] = null;
 
         return $productData;
     }

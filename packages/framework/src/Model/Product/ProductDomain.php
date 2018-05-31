@@ -3,7 +3,6 @@
 namespace Shopsys\FrameworkBundle\Model\Product;
 
 use Doctrine\ORM\Mapping as ORM;
-use Shopsys\FrameworkBundle\Component\Domain\Domain;
 
 /**
  * @ORM\Table(name="product_domains")
@@ -12,10 +11,18 @@ use Shopsys\FrameworkBundle\Component\Domain\Domain;
 class ProductDomain
 {
     /**
+     * @var int
+     *
+     * @ORM\Column(type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    protected $id;
+
+    /**
      * @var \Shopsys\FrameworkBundle\Model\Product\Product
      *
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="Shopsys\FrameworkBundle\Model\Product\Product")
+     * @ORM\ManyToOne(targetEntity="Shopsys\FrameworkBundle\Model\Product\Product", inversedBy="domains")
      * @ORM\JoinColumn(nullable=false, name="product_id", referencedColumnName="id", onDelete="CASCADE")
      */
     protected $product;
@@ -23,7 +30,6 @@ class ProductDomain
     /**
      * @var int
      *
-     * @ORM\Id
      * @ORM\Column(type="integer")
      */
     protected $domainId;
@@ -139,20 +145,6 @@ class ProductDomain
     public function setSeoH1($seoH1)
     {
         $this->seoH1 = $seoH1;
-    }
-
-    /**
-     * @param \Shopsys\FrameworkBundle\Component\Domain\Domain $domain
-     * @return string
-     */
-    public function getSeoTitleForHtml(Domain $domain)
-    {
-        $seoTitle = $this->getSeoTitle();
-        if ($seoTitle === null) {
-            return $this->product->getName($domain->getLocale());
-        } else {
-            return $seoTitle;
-        }
     }
 
     /**
