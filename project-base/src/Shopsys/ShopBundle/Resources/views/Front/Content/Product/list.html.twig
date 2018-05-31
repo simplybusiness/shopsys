@@ -8,19 +8,19 @@
 {% endblock %}
 
 {% block meta_description %}
-    {{- categoryDomain.seoMetaDescription|default(getSeoMetaDescription()) -}}
+    {{- category.getSeoMetaDescription(domain.id)|default(getSeoMetaDescription()) -}}
 {% endblock %}
 
 {% block title %}
-    {{ categoryDomain.seoTitle|default(category.name) }}
+    {{ category.getSeoTitle(domain.id)|default(category.name) }}
 {% endblock %}
 
 {% block main_content %}
     <div class="box-list">
         {{ render(controller('ShopsysShopBundle:Front/Advert:box',{'positionName' : POSITION_PRODUCT_LIST})) }}
         <h1>
-            {% if categoryDomain.seoH1 is not null %}
-                {{ categoryDomain.seoH1 }}
+            {% if category.getSeoH1(domain.id) is not null %}
+                {{ category.getSeoH1(domain.id) }}
             {% else %}
                 {{ category.name }}
             {% endif %}
@@ -58,7 +58,7 @@
 
         <div class="box-list__description">
             <div class="js-category-description box-list__description__text in-user-text">
-                {{ categoryDomain.description|raw }}
+                {{ category.getDescription(domain.id)|raw }}
             </div>
             <div class="box-list__description__more">
                 <span class="js-category-description-load-more link-style box-list__description__more__btn">

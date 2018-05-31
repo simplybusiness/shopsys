@@ -128,6 +128,7 @@ class CategoryDataFixture extends AbstractReferenceFixture
         $categoryData = $this->categoryDataFacade->createFromCategory($category);
         $domainId = 2;
         $categoryData->descriptions[$domainId] = $descriptionDomain2;
+        $categoryData->enabled[$domainId] = true;
         $this->categoryFacade->edit($category->getId(), $categoryData);
     }
 }
