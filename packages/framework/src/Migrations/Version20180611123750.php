@@ -1,0 +1,48 @@
+<?php
+
+namespace Shopsys\FrameworkBundle\Migrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Shopsys\FrameworkBundle\Component\Migration\MultidomainMigrationTrait;
+use Shopsys\MigrationBundle\Component\Doctrine\Migrations\AbstractMigration;
+
+class Version20180611123750 extends AbstractMigration
+{
+    use MultidomainMigrationTrait;
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Schema $schema
+     */
+    public function up(Schema $schema)
+    {
+        // In previous implementation, records in payment_domains were only created when the payment was enabled on the domain
+        // Currently, there should be a record for each payment - domain pair
+        $this->sql('ALTER TABLE payment_domains ADD enabled BOOLEAN NOT NULL DEFAULT TRUE');
+        $this->sql('ALTER TABLE payment_domains ALTER enabled DROP DEFAULT;');
+        $this->sql('CREATE UNIQUE INDEX payment_domain ON payment_domains (payment_id, domain_id)');
+
+        // Because there is a compound unique key for payment and domain we can insert the remaining records
+        foreach ($this->getAllDomainIds() as $domainId) {
+            $this->sql(
+                'INSERT INTO payment_domains (payment_id, domain_id, enabled) 
+                    SELECT id, :domainId, FALSE FROM payments
+                    ON CONFLICT DO NOTHING',
+                ['domainId' => $domainId]
+            );
+        }
+
+        $this->sql('ALTER TABLE payment_domains DROP CONSTRAINT FK_9532B1774C3A3BB');
+        $this->sql('
+            ALTER TABLE
+                payment_domains
+            ADD
+                CONSTRAINT FK_9532B1774C3A3BB FOREIGN KEY (payment_id) REFERENCES payments (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+    }
+
+    /**
+     * @param \Doctrine\DBAL\Schema\Schema $schema
+     */
+    public function down(Schema $schema)
+    {
+    }
+}

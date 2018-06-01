@@ -10,6 +10,7 @@ use Prezent\Doctrine\Translatable\Annotation as Prezent;
 use Shopsys\FrameworkBundle\Component\Gedmo\SortablePosition;
 use Shopsys\FrameworkBundle\Component\Grid\Ordering\OrderableEntityInterface;
 use Shopsys\FrameworkBundle\Model\Localization\AbstractTranslatableEntity;
+use Shopsys\FrameworkBundle\Model\Payment\Exception\PaymentDomainNotFoundException;
 use Shopsys\FrameworkBundle\Model\Pricing\Currency\Currency;
 use Shopsys\FrameworkBundle\Model\Transport\Transport;
 
@@ -88,6 +89,13 @@ class Payment extends AbstractTranslatableEntity implements OrderableEntityInter
     protected $czkRounding;
 
     /**
+     * @var \Shopsys\FrameworkBundle\Model\Payment\PaymentDomain[]|\Doctrine\Common\Collections\ArrayCollection
+     *
+     * @ORM\OneToMany(targetEntity="Shopsys\FrameworkBundle\Model\Payment\PaymentDomain", mappedBy="payment", cascade={"persist"}, fetch="EXTRA_LAZY")
+     */
+    protected $domains;
+
+    /**
      * @param \Shopsys\FrameworkBundle\Model\Payment\PaymentData $paymentData
      */
     public function __construct(PaymentData $paymentData)
@@ -95,9 +103,11 @@ class Payment extends AbstractTranslatableEntity implements OrderableEntityInter
         $this->translations = new ArrayCollection();
         $this->vat = $paymentData->vat;
         $this->transports = new ArrayCollection();
+        $this->domains = new ArrayCollection();
         $this->hidden = $paymentData->hidden;
         $this->deleted = false;
         $this->setTranslations($paymentData);
+        $this->setDomains($paymentData);
         $this->prices = new ArrayCollection();
         $this->czkRounding = $paymentData->czkRounding;
         $this->position = SortablePosition::LAST_POSITION;
@@ -174,6 +184,7 @@ class Payment extends AbstractTranslatableEntity implements OrderableEntityInter
         $this->hidden = $paymentData->hidden;
         $this->czkRounding = $paymentData->czkRounding;
         $this->setTranslations($paymentData);
+        $this->setDomains($paymentData);
     }
 
     /**
@@ -264,6 +275,15 @@ class Payment extends AbstractTranslatableEntity implements OrderableEntityInter
     }
 
     /**
+     * @param int $domainId
+     * @return bool
+     */
+    public function isEnabled($domainId)
+    {
+        return $this->getPaymentDomain($domainId)->isEnabled();
+    }
+
+    /**
      * @return bool
      */
     public function isHidden()
@@ -315,5 +335,40 @@ class Payment extends AbstractTranslatableEntity implements OrderableEntityInter
     protected function createTranslation()
     {
         return new PaymentTranslation();
+    }
+
+    /**
+     * @param \Shopsys\FrameworkBundle\Model\Payment\PaymentData $paymentData
+     */
+    private function setDomains(PaymentData $paymentData)
+    {
+        $domainIds = array_keys($paymentData->enabled);
+
+        foreach ($domainIds as $domainId) {
+            try {
+                $paymentDomain = $this->getPaymentDomain($domainId);
+            } catch (PaymentDomainNotFoundException $e) {
+                $paymentDomain = new PaymentDomain($this, $domainId);
+            }
+            $paymentDomain->setEnabled($paymentData->enabled[$domainId]);
+            $this->domains[] = $paymentDomain;
+        }
+    }
+
+    /**
+     * @param int $domainId
+     * @return \Shopsys\FrameworkBundle\Model\Payment\PaymentDomain
+     */
+    private function getPaymentDomain($domainId)
+    {
+        if ($this->domains !== null) {
+            foreach ($this->domains as $paymentDomain) {
+                if ($paymentDomain->getDomainId() === $domainId) {
+                    return $paymentDomain;
+                }
+            }
+        }
+
+        throw new PaymentDomainNotFoundException($this->id, $domainId);
     }
 }

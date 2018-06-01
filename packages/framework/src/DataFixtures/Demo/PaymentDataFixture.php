@@ -5,10 +5,10 @@ namespace Shopsys\FrameworkBundle\DataFixtures\Demo;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Shopsys\FrameworkBundle\Component\DataFixture\AbstractReferenceFixture;
-use Shopsys\FrameworkBundle\Component\Domain\Domain;
 use Shopsys\FrameworkBundle\DataFixtures\Base\CurrencyDataFixture;
 use Shopsys\FrameworkBundle\DataFixtures\Base\VatDataFixture;
 use Shopsys\FrameworkBundle\Model\Payment\PaymentData;
+use Shopsys\FrameworkBundle\Model\Payment\PaymentDataFactory;
 use Shopsys\FrameworkBundle\Model\Payment\PaymentFacade;
 
 class PaymentDataFixture extends AbstractReferenceFixture implements DependentFixtureInterface
@@ -21,11 +21,20 @@ class PaymentDataFixture extends AbstractReferenceFixture implements DependentFi
     private $paymentFacade;
 
     /**
-     * @param \Shopsys\FrameworkBundle\Model\Payment\PaymentFacade $paymentFacade
+     * @var \Shopsys\FrameworkBundle\Model\Payment\PaymentDataFactory
      */
-    public function __construct(PaymentFacade $paymentFacade)
-    {
+    private $paymentDataFactory;
+
+    /**
+     * @param \Shopsys\FrameworkBundle\Model\Payment\PaymentFacade $paymentFacade
+     * @param \Shopsys\FrameworkBundle\Model\Payment\PaymentDataFactory $paymentDataFactory
+     */
+    public function __construct(
+        PaymentFacade $paymentFacade,
+        PaymentDataFactory $paymentDataFactory
+    ) {
         $this->paymentFacade = $paymentFacade;
+        $this->paymentDataFactory = $paymentDataFactory;
     }
 
     /**
@@ -33,7 +42,7 @@ class PaymentDataFixture extends AbstractReferenceFixture implements DependentFi
      */
     public function load(ObjectManager $manager)
     {
-        $paymentData = new PaymentData();
+        $paymentData = $this->paymentDataFactory->createDefault();
         $paymentData->name = [
             'cs' => 'Kreditní kartou',
             'en' => 'Credit card',
@@ -52,7 +61,6 @@ class PaymentDataFixture extends AbstractReferenceFixture implements DependentFi
             'en' => '<b>You have chosen payment by credit card. Please finish it in two business days.</b>',
         ];
         $paymentData->vat = $this->getReference(VatDataFixture::VAT_ZERO);
-        $paymentData->domains = [Domain::FIRST_DOMAIN_ID];
         $paymentData->hidden = false;
         $this->createPayment(self::PAYMENT_CARD, $paymentData, [
             TransportDataFixture::TRANSPORT_PERSONAL,
