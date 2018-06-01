@@ -12,6 +12,7 @@ use Shopsys\FrameworkBundle\Component\Grid\Ordering\OrderableEntityInterface;
 use Shopsys\FrameworkBundle\Model\Localization\AbstractTranslatableEntity;
 use Shopsys\FrameworkBundle\Model\Payment\Payment;
 use Shopsys\FrameworkBundle\Model\Pricing\Currency\Currency;
+use Shopsys\FrameworkBundle\Model\Transport\Exception\TransportDomainNotFoundException;
 
 /**
  * @ORM\Table(name="transports")
@@ -34,6 +35,13 @@ class Transport extends AbstractTranslatableEntity implements OrderableEntityInt
      * @Prezent\Translations(targetEntity="Shopsys\FrameworkBundle\Model\Transport\TransportTranslation")
      */
     protected $translations;
+
+    /**
+     * @var \Shopsys\FrameworkBundle\Model\Transport\TransportDomain[]
+     *
+     * @ORM\OneToMany(targetEntity="Shopsys\FrameworkBundle\Model\Transport\TransportDomain", mappedBy="transport", cascade={"persist"}, fetch="EXTRA_LAZY")
+     */
+    protected $domains;
 
     /**
      * @var \Shopsys\FrameworkBundle\Model\Transport\TransportPrice[]
@@ -84,10 +92,12 @@ class Transport extends AbstractTranslatableEntity implements OrderableEntityInt
     public function __construct(TransportData $transportData)
     {
         $this->translations = new ArrayCollection();
+        $this->domains = new ArrayCollection();
         $this->vat = $transportData->vat;
         $this->hidden = $transportData->hidden;
         $this->deleted = false;
         $this->setTranslations($transportData);
+        $this->setDomains($transportData);
         $this->prices = new ArrayCollection();
         $this->position = SortablePosition::LAST_POSITION;
         $this->payments = new ArrayCollection();
@@ -101,6 +111,7 @@ class Transport extends AbstractTranslatableEntity implements OrderableEntityInt
         $this->vat = $transportData->vat;
         $this->hidden = $transportData->hidden;
         $this->setTranslations($transportData);
+        $this->setDomains($transportData);
     }
 
     /**
@@ -152,6 +163,15 @@ class Transport extends AbstractTranslatableEntity implements OrderableEntityInt
     public function getInstructions($locale = null)
     {
         return $this->translation($locale)->getInstructions();
+    }
+
+    /**
+     * @param int $domainId
+     * @return bool
+     */
+    public function isEnabled($domainId)
+    {
+        return $this->getTransportDomain($domainId)->isEnabled();
     }
 
     /**
@@ -245,6 +265,26 @@ class Transport extends AbstractTranslatableEntity implements OrderableEntityInt
     }
 
     /**
+     * @param \Shopsys\FrameworkBundle\Model\Transport\TransportData $transportData
+     */
+    protected function setDomains(TransportData $transportData)
+    {
+        $domainIds = array_keys($transportData->enabled);
+
+        foreach ($domainIds as $domainId) {
+            try {
+                $transportDomain = $this->getTransportDomain($domainId);
+            } catch (TransportDomainNotFoundException $e) {
+                $transportDomain = new TransportDomain($this, $domainId);
+            }
+
+            $transportDomain->setEnabled($transportData->enabled[$domainId]);
+
+            $this->domains[] = $transportDomain;
+        }
+    }
+
+    /**
      * @return \Shopsys\FrameworkBundle\Model\Transport\TransportTranslation
      */
     protected function createTranslation()
@@ -296,5 +336,22 @@ class Transport extends AbstractTranslatableEntity implements OrderableEntityInt
     public function getPayments()
     {
         return $this->payments;
+    }
+
+    /**
+     * @param int $domainId
+     * @return \Shopsys\FrameworkBundle\Model\Transport\TransportDomain
+     */
+    private function getTransportDomain($domainId)
+    {
+        if ($this->domains !== null) {
+            foreach ($this->domains as $transportDomain) {
+                if ($transportDomain->getDomainId() === $domainId) {
+                    return $transportDomain;
+                }
+            }
+        }
+
+        throw new TransportDomainNotFoundException($this->id, $domainId);
     }
 }
