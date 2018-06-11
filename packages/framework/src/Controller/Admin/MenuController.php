@@ -36,6 +36,18 @@ class MenuController extends AdminBaseController
         ]);
     }
 
+    public function headerAction($route, array $parameters = null)
+    {
+        $menu = $this->menuFactory->createMenuWithVisibleItems();
+        $activePath = $menu->getMenuPath($route, $parameters);
+
+        return $this->render('@ShopsysFramework/Admin/Inline/Menu/headerMenu.html.twig', [
+            'menu' => $menu,
+            'activePath' => $activePath,
+            'domainConfigs' => $this->domainFacade->getAllDomainConfigs(),
+        ]);
+    }
+
     public function panelAction($route, array $parameters = null)
     {
         $menu = $this->menuFactory->createMenuWithVisibleItems();

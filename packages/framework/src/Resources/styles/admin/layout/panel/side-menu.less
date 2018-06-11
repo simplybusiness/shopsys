@@ -14,12 +14,17 @@
             position: relative;
             display: block;
             padding: 15px;
+            font-size: 16px;
 
             text-decoration: none;
-            color: @color-darklink;
+            color: @color-base;
 
             &:hover {
-                color: @color-darklink-hover;
+                color: @color-primary;
+            }
+
+            .side-menu__submenu & {
+                font-size: 14px;
             }
 
             .side-menu__item--active & {
@@ -38,6 +43,11 @@
                 color: @color-red;
             }
 
+            .svg {
+                color: @color-darklink;
+                margin-right: 4px;
+            }
+
             &__icon {
                 float: left;
                 margin-right: 5px;
@@ -53,6 +63,10 @@
     &__submenu {
         .reset-ul();
 
+        .side-menu__item--active & {
+            display: block!important;
+        }
+
         &__item {
             display: block;
 
@@ -64,7 +78,7 @@
             &__link {
                 display: block;
                 position: relative;
-                padding: 8px 15px;
+                padding: 8px 15px 8px 37px;
 
                 text-decoration: none;
                 color: @color-darklink;
@@ -73,8 +87,12 @@
                     color: @color-darklink-hover;
                 }
 
+                &--active {
+                    color: @color-blue;
+                }
+
                 .side-menu__item--active & {
-                    padding-left: 11px;
+                    padding-left: 33px;
 
                     border-left: 4px solid @color-blue;
                 }
@@ -93,6 +111,10 @@
 
                 .side-menu__submenu__item--superadmin & {
                     color: @color-red;
+                }
+
+                .side-menu__submenu__item:last-child & {
+                    padding-bottom: 15px;
                 }
 
             }
