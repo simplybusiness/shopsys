@@ -69,24 +69,41 @@
     </ul>
 
     <nav>
-        <ul class="navig navig--main">
+        <ul class="side-menu js-toggle-menu">
             {% for item in menu.regularItems %}
                 {% if (item.visible) %}
-                    <li class="navig__item" >
+                    <li class="side-menu__item js-toggle-menu-item" >
                         {% if item.route %}
-                            <a href="{{ url(item.route, item.routeParameters) }}" class="navig__item__link {% if item in activePath %}navig__item__link--active{% endif %}" title="{{ item.label }}">
+                            <a class=" side-menu__item__link {% if item in activePath %}side-menu__item__link--active{% endif %}" title="{{ item.label }}">
                                 <div>
                                     <i class="svg svg-{{ item.icon }}"></i>
                                     <span>{{ item.label }}</span>
+
                                 </div>
                             </a>
                         {% else %}
-                            <a href="#" class="navig__item__link {% if item in activePath %}navig__item__link--active{% endif %}" title="{{ item.label }}">
+                            <a href="#" class=" side-menu__item__link {% if item in activePath %}side-menu__item__link--active{% endif %}" title="{{ item.label }}">
                                 <div>
                                     <i class="svg svg-{{ item.icon }}"></i>
                                     <span>{{ item.label }}</span>
+
                                 </div>
+
                             </a>
+                        {% endif %}
+                        {% if item.getItems %}
+                        <ul class="side-menu__submenu js-toggle-menu-submenu display-none">
+                            {% for item in item.getItems %}
+                            <li class="side-menu__submenu__item">
+                                <a href="{{ url(item.route, item.routeParameters) }}" class="side-menu__item__link {% if item in activePath %}side-menu__item__link--active{% endif %}" title="{{ item.label }}">
+                                    <div>
+                                        <i class="svg svg-{{ item.icon }}"></i>
+                                        <span>{{ item.label }}</span>
+                                    </div>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
                         {% endif %}
                     </li>
                 {% endif %}

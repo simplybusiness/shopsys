@@ -61,7 +61,7 @@ body {
             top: 0;
             bottom: 0;
             left: @width-panel;
-            width: 3px;
+            width: 1px;
             opacity: 0.3;
             content: '';
 
@@ -102,13 +102,33 @@ body {
             right: 0;
             left: 0;
             bottom: @height-fixed-bar;
-            overflow: auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+
+    		&::-webkit-scrollbar {
+    			-webkit-appearance: none;
+    		}
+    		&::-webkit-scrollbar:vertical {
+    			width: 11px;
+    		}
+    		&::-webkit-scrollbar-thumb {
+    			border: 2px solid white;
+    			border-radius: 8px;
+    			background-color: rgba(0, 0, 0, 0.5);
+    		}
+
+    		&::-webkit-scrollbar-track {
+    			border-radius: 8px;
+    			background-color: #ffffff;
+    		}
         }
     }
 
     &__content {
         padding: 0 30px 30px;
         position: relative;
+        max-width: @width-content;
+        margin: 0 auto;
 
         &--padding-top {
             padding-top: 20px;
@@ -127,8 +147,7 @@ body {
         }
 
         &__panel {
-            left: 50%;
-            margin-left: -@width-web / 2;
+            left: 0;
             z-index: 1000;
         }
     }
