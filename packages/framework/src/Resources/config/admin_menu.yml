@@ -130,7 +130,6 @@
 
 - label: 'Settings'
   route: admin_domain_list
-  type: settings
   icon: gear
   items:
     - label: 'E-shop identification'
@@ -288,3 +287,7 @@
   items:
   - label: 'My account'
     route: admin_administrator_myaccount
+- label: 'Settings'
+  route: admin_domain_list
+  type: settings
+  icon: gear

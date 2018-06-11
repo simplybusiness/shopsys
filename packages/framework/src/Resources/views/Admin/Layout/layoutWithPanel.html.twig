@@ -5,11 +5,13 @@
         <div class="web__panel">
             <div class="web__panel__in">
                 {% block menu_panel %}
-                    {{ render(controller('ShopsysFrameworkBundle:Admin/Menu:panel', {
+                    {{ render(controller('ShopsysFrameworkBundle:Admin/Menu:menu', {
                         route: getRoute(),
                         parameters: getRouteParams()
                     } )) }}
                 {% endblock %}
+                
+
             </div>
         </div>
 
