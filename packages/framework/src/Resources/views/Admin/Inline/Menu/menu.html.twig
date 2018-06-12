@@ -24,15 +24,26 @@
                             </a>
                         {% endif %}
                         {% if item.getItems %}
-                        <ul class="side-menu__submenu js-toggle-menu-submenu display-none">
+                        <ul class="side-menu__submenu js-toggle-menu js-toggle-menu-submenu display-none">
                             {% for item in item.getItems %}
-                            <li class="side-menu__submenu__item">
+                            <li class="side-menu__submenu__item js-toggle-menu-item {% if item in activePath %}side-menu__submenu__item--active{% endif %}">
                                 <a href="{{ url(item.route, item.routeParameters) }}" class="side-menu__submenu__item__link {% if item in activePath %}side-menu__submenu__item__link--active{% endif %}" title="{{ item.label }}">
                                     <div>
-                                        <i class="svg svg-{{ item.icon }}"></i>
                                         <span>{{ item.label }}</span>
                                     </div>
                                 </a>
+                                {% if item.items is not empty %}
+                                    <ul class="side-menu__submenu js-toggle-menu-submenu display-none side-menu__submenu--level2">
+                                        {% for subitem in item.items %}
+                                            {% if (subitem.visible) %}
+                                                <li class="side-menu__submenu__item {% if subitem in activePath %}side-menu__submenu__item--active{% endif %}{% if subitem.superadmin or item.superadmin %} side-menu__submenu__item--superadmin{% endif %}" >
+                                                    <a href="{{ url(subitem.route, subitem.routeParameters) }}" class="side-menu__submenu__item__link">
+                                                    <span class="svg svg-arrow-strong"></span>{{ subitem.label }}</a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
                             </li>
                             {% endfor %}
                         </ul>
