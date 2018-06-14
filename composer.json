@@ -15,10 +15,7 @@
       "Shopsys\\MigrationBundle\\": "packages/migrations/src/",
       "Shopsys\\Plugin\\": "packages/plugin-interface/src/",
       "Shopsys\\ProductFeed\\": "packages/product-feed-interface/src/",
-      "Shopsys\\ProductFeed\\ZboziBundle\\": "packages/product-feed-zbozi/src/",
       "Shopsys\\ProductFeed\\GoogleBundle\\": "packages/product-feed-google/src/",
-      "Shopsys\\ProductFeed\\HeurekaBundle\\": "packages/product-feed-heureka/src/",
-      "Shopsys\\ProductFeed\\HeurekaDeliveryBundle\\": "packages/product-feed-heureka-delivery/src/",
       "Shopsys\\FrameworkBundle\\": "packages/framework/src/"
     },
     "classmap": [
@@ -38,10 +35,7 @@
       "Tests\\FrameworkBundle\\": "packages/framework/tests/",
       "Tests\\HttpSmokeTesting\\": "packages/http-smoke-testing/tests/",
       "Tests\\MigrationBundle\\": "packages/migrations/tests/",
-      "Tests\\ProductFeed\\ZboziBundle\\": "packages/product-feed-zbozi/tests/",
-      "Tests\\ProductFeed\\GoogleBundle\\": "packages/product-feed-google/tests/",
-      "Tests\\ProductFeed\\HeurekaBundle\\": "packages/product-feed-heureka/tests/",
-      "Tests\\ProductFeed\\HeurekaDeliveryBundle\\": "packages/product-feed-heureka-delivery/tests/"
+      "Tests\\ProductFeed\\GoogleBundle\\": "packages/product-feed-google/tests/"
     }
   },
   "repositories": [
@@ -188,9 +182,6 @@
     "shopsys/migrations": "self.version",
     "shopsys/plugin-interface": "self.version",
     "shopsys/product-feed-google": "self.version",
-    "shopsys/product-feed-zbozi": "self.version",
-    "shopsys/product-feed-heureka": "self.version",
-    "shopsys/product-feed-heureka-delivery": "self.version",
     "shopsys/product-feed-interface": "self.version",
     "shopsys/framework": "self.version",
     "shopsys/coding-standards": "self.version"
