@@ -32,8 +32,6 @@
             var hideAllSubmenus = function () {
                 $items.filterAllNodes('.js-toggle-menu-submenu').hide();
                 $items.removeClass('open');
-                $itemsNoCloseAllSubmenus.filterAllNodes('.js-toggle-menu-submenu').hide();
-                $itemsNoCloseAllSubmenus.removeClass('open');
             };
         };
     };
