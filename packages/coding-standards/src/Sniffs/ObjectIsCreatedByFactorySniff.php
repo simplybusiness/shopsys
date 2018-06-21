@@ -6,8 +6,8 @@ namespace Shopsys\CodingStandards\Sniffs;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
-use SlevomatCodingStandard\Helpers\ClassHelper;
 use Symplify\TokenRunner\Analyzer\SnifferAnalyzer\Naming;
+use Symplify\TokenRunner\Wrapper\SnifferWrapper\ClassWrapperFactory;
 
 final class ObjectIsCreatedByFactorySniff implements Sniff
 {
@@ -16,9 +16,15 @@ final class ObjectIsCreatedByFactorySniff implements Sniff
      */
     private $naming;
 
-    public function __construct(Naming $naming)
+    /**
+     * @var \Symplify\TokenRunner\Wrapper\SnifferWrapper\ClassWrapperFactory
+     */
+    private $classWrapperFactory;
+
+    public function __construct(Naming $naming, ClassWrapperFactory $classWrapperFactory)
     {
         $this->naming = $naming;
+        $this->classWrapperFactory = $classWrapperFactory;
     }
 
     /**
@@ -35,23 +41,38 @@ final class ObjectIsCreatedByFactorySniff implements Sniff
      */
     public function process(File $file, $position): void
     {
-        // get full name of the file class
-        $fileClassName = ClassHelper::getFullyQualifiedName($file, $file->findNext(T_CLASS, 2));
+        $instantiatedClassNamePosition = $file->findNext(T_STRING, $position, $position + 3);
+        if ($instantiatedClassNamePosition === null) {
+            // eg. new $className; cannot be resolved
+            return;
+        }
 
-        // get full name of the class that is instantiated inside of some method of the file class
-        $className = '\\' . $this->naming->getClassName($file, $file->findNext(T_STRING, $position));
-        $factoryName = $className . 'Factory';
+        $instantiatedClassName = $this->naming->getClassName($file, $instantiatedClassNamePosition);
+        $factoryClassName = $instantiatedClassName . 'Factory';
 
-        // if instantiated class is instantiated inside it's factory
-        // if instantiated class doesn't have factory in the same namespace path then code is valid
-        if ($factoryName === $fileClassName || !class_exists($factoryName)) {
+        if ($factoryClassName === $this->getFirstClassNameInFile($file) || !class_exists($factoryClassName)) {
             return;
         }
 
         $file->addError(
-            sprintf('For creation of "%s" class use its factory "%s"', $className, $factoryName),
+            sprintf('For creation of "%s" class use its factory "%s"', $instantiatedClassName, $factoryClassName),
             $position,
             self::class
         );
+    }
+
+    /**
+     * @param \PHP_CodeSniffer\Files\File $file
+     * @return string|null
+     */
+    private function getFirstClassNameInFile(File $file): ?string
+    {
+        $classInFile = $this->classWrapperFactory->createFromFirstClassInFile($file);
+
+        if ($classInFile === null) {
+            return null;
+        }
+
+        return $classInFile->getClassName();
     }
 }
