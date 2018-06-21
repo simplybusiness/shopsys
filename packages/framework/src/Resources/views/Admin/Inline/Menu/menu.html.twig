@@ -4,7 +4,7 @@
         <ul class="side-menu js-toggle-menu">
             {% for item in menu.regularItems %}
                 {% if (item.visible) %}
-            <li class="side-menu__item js-toggle-menu-item {% if item in activePath %}side-menu__item--active{% endif %}" >
+            <li class="side-menu__item js-toggle-stay-open-menu-item {% if item in activePath %}side-menu__item--active{% endif %}" >
                         {% if item.route and item.getItems is empty %}
                             <a href="{{ url(item.route, item.routeParameters) }}" class=" side-menu__item__link {% if item in activePath %}side-menu__item__link--active{% endif %}" title="{{ item.label }}">
                                 <div>

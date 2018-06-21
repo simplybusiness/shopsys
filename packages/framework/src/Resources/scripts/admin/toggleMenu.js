@@ -6,9 +6,18 @@
     Shopsys.toggleMenu.ToggleMenu = function ($toggleMenu) {
         this.init = function () {
             var $items = $toggleMenu.filterAllNodes('.js-toggle-menu-item');
+            var $itemsNoCloseAllSubmenus = $toggleMenu.filterAllNodes('.js-toggle-stay-open-menu-item');
 
             $items.click(function (event) {
                 hideAllSubmenus();
+
+                $(this).filterAllNodes('.js-toggle-menu-submenu').show();
+                $(this).addClass('open');
+
+                event.stopPropagation();
+            });
+
+            $itemsNoCloseAllSubmenus.click(function (event) {
 
                 $(this).filterAllNodes('.js-toggle-menu-submenu').show();
                 $(this).addClass('open');
@@ -23,6 +32,8 @@
             var hideAllSubmenus = function () {
                 $items.filterAllNodes('.js-toggle-menu-submenu').hide();
                 $items.removeClass('open');
+                $itemsNoCloseAllSubmenus.filterAllNodes('.js-toggle-menu-submenu').hide();
+                $itemsNoCloseAllSubmenus.removeClass('open');
             };
         };
     };
