@@ -19,11 +19,14 @@ class FriendlyUrlToGenerateRepository
     private $em;
 
     /**
-     * @param \Doctrine\ORM\EntityManagerInterface $em
+     * @var \Shopsys\FrameworkBundle\Component\Router\FriendlyUrl\FriendlyUrlDataFactoryInterface
      */
-    public function __construct(EntityManagerInterface $em)
+    protected $friendlyUrlDataFactory;
+
+    public function __construct(EntityManagerInterface $em, FriendlyUrlDataFactoryInterface $friendlyUrlDataFactory)
     {
         $this->em = $em;
+        $this->friendlyUrlDataFactory = $friendlyUrlDataFactory;
     }
 
     /**
@@ -116,7 +119,7 @@ class FriendlyUrlToGenerateRepository
         $friendlyUrlsData = [];
 
         foreach ($scalarData as $data) {
-            $friendlyUrlData = new FriendlyUrlData();
+            $friendlyUrlData = $this->friendlyUrlDataFactory->create();
             $friendlyUrlData->id = $data['id'];
             $friendlyUrlData->name = $data['name'];
 
