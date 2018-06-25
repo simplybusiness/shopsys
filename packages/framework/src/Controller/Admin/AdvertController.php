@@ -13,7 +13,7 @@ use Shopsys\FrameworkBundle\Model\Administrator\AdministratorGridFacade;
 use Shopsys\FrameworkBundle\Model\AdminNavigation\Breadcrumb;
 use Shopsys\FrameworkBundle\Model\AdminNavigation\MenuItem;
 use Shopsys\FrameworkBundle\Model\Advert\Advert;
-use Shopsys\FrameworkBundle\Model\Advert\AdvertData;
+use Shopsys\FrameworkBundle\Model\Advert\AdvertDataFactoryInterface;
 use Shopsys\FrameworkBundle\Model\Advert\AdvertFacade;
 use Shopsys\FrameworkBundle\Twig\ImageExtension;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,13 +50,19 @@ class AdvertController extends AdminBaseController
      */
     private $imageExtension;
 
+    /**
+     * @var \Shopsys\FrameworkBundle\Model\Advert\AdvertDataFactoryInterface
+     */
+    private $advertDataFactory;
+
     public function __construct(
         AdvertFacade $advertFacade,
         AdministratorGridFacade $administratorGridFacade,
         GridFactory $gridFactory,
         AdminDomainTabsFacade $adminDomainTabsFacade,
         Breadcrumb $breadcrumb,
-        ImageExtension $imageExtension
+        ImageExtension $imageExtension,
+        AdvertDataFactoryInterface $advertDataFactory
     ) {
         $this->advertFacade = $advertFacade;
         $this->administratorGridFacade = $administratorGridFacade;
@@ -64,6 +70,7 @@ class AdvertController extends AdminBaseController
         $this->adminDomainTabsFacade = $adminDomainTabsFacade;
         $this->breadcrumb = $breadcrumb;
         $this->imageExtension = $imageExtension;
+        $this->advertDataFactory = $advertDataFactory;
     }
 
     /**
@@ -75,8 +82,7 @@ class AdvertController extends AdminBaseController
     {
         $advert = $this->advertFacade->getById($id);
 
-        $advertData = new AdvertData();
-        $advertData->setFromEntity($advert);
+        $advertData = $this->advertDataFactory->createFromAdvert($advert);
 
         $form = $this->createForm(AdvertFormType::class, $advertData, [
             'image_exists' => $this->imageExtension->imageExists($advert),
@@ -172,7 +178,7 @@ class AdvertController extends AdminBaseController
      */
     public function newAction(Request $request)
     {
-        $advertData = new AdvertData();
+        $advertData = $this->advertDataFactory->create();
         $advertData->domainId = $this->adminDomainTabsFacade->getSelectedDomainId();
 
         $form = $this->createForm(AdvertFormType::class, $advertData, [
