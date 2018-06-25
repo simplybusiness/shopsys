@@ -3,7 +3,7 @@
 namespace Shopsys\FrameworkBundle\Component\Domain\Multidomain;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Shopsys\FrameworkBundle\Component\Doctrine\EntityNotNullableColumnsFinder;
+use Shopsys\FrameworkBundle\Component\Doctrine\NotNullableColumnsFinder;
 
 class MultidomainEntityClassFinderFacade
 {
@@ -23,20 +23,20 @@ class MultidomainEntityClassFinderFacade
     private $multiDomainEntityClassProvider;
 
     /**
-     * @var \Shopsys\FrameworkBundle\Component\Doctrine\EntityNotNullableColumnsFinder
+     * @var \Shopsys\FrameworkBundle\Component\Doctrine\NotNullableColumnsFinder
      */
-    protected $entityNotNullableColumnsFinder;
+    protected $notNullableColumnsFinder;
 
     public function __construct(
         EntityManagerInterface $em,
         MultidomainEntityClassFinder $multidomainEntityClassFinder,
         MultiDomainEntityClassProviderInterface $multiDomainEntityClassProvider,
-        EntityNotNullableColumnsFinder $entityNotNullableColumnsFinder
+        NotNullableColumnsFinder $notNullableColumnsFinder
     ) {
         $this->em = $em;
         $this->multidomainEntityClassFinder = $multidomainEntityClassFinder;
         $this->multiDomainEntityClassProvider = $multiDomainEntityClassProvider;
-        $this->entityNotNullableColumnsFinder = $entityNotNullableColumnsFinder;
+        $this->notNullableColumnsFinder = $notNullableColumnsFinder;
     }
 
     /**
@@ -61,6 +61,6 @@ class MultidomainEntityClassFinderFacade
             $multidomainClassesMetadata[] = $this->em->getMetadataFactory()->getMetadataFor($multidomainEntityName);
         }
 
-        return $this->entityNotNullableColumnsFinder->getAllNotNullableColumnNamesIndexedByTableName($multidomainClassesMetadata);
+        return $this->notNullableColumnsFinder->getAllNotNullableColumnNamesIndexedByTableName($multidomainClassesMetadata);
     }
 }
