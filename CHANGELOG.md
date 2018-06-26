@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - [#206 clearing Setting's cache is now done via DoctrineEventListener](https://github.com/shopsys/shopsys/pull/206)
     - `EntityManagerFacade` was removed
     - Doctrine identity map can be cleared via `EntityManager::clear()` directly
+- [#274 grid: drag&drop is supported with enabled gridInlineEdit](https://github.com/shopsys/shopsys/pull/274)
 
 #### Changed
 - [#171 - Update to twig 2.x](https://github.com/shopsys/shopsys/pull/171):
