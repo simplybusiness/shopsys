@@ -14,11 +14,10 @@
             position: relative;
             display: block;
             padding: 15px;
-            font-size: 16px;
-
 
             text-decoration: none;
             color: @color-base;
+            font-size: 16px;
 
             &:hover {
                 color: @color-primary;
@@ -30,8 +29,8 @@
 
             .side-menu__item--active & {
                 padding-left: 11px;
-                background-color: @bg-info;
 
+                background-color: @bg-info;
                 color: @color-link;
                 border-left: 4px solid @color-blue;
 
@@ -46,8 +45,9 @@
             }
 
             .svg {
-                color: @color-darklink;
                 margin-right: 4px;
+
+                color: @color-darklink;
             }
 
             &__icon {
@@ -66,11 +66,7 @@
         .reset-ul();
 
         .side-menu__item--active > & {
-            display: block!important;
-        }
-
-        .side-menu__submenu__item--active > & {
-            // display: block!important;
+            display: block !important;
         }
 
         .open & {
@@ -90,10 +86,10 @@
                 display: block;
                 position: relative;
                 padding: 8px 15px 8px 37px;
-                font-size: 14px;
 
                 text-decoration: none;
                 color: @color-darklink;
+                font-size: 14px;
 
                 &:hover {
                     color: @color-darklink-hover;
@@ -130,17 +126,16 @@
                 }
 
                 .side-menu__submenu--level2 & {
+                    display: flex;
                     padding-top: 4px;
                     padding-bottom: 4px;
+
                     font-size: 12px;
-                    display: flex;
 
                     .svg {
                         margin-right: 5px;
                     }
                 }
-
-
 
                 .side-menu__submenu--level2 .side-menu__submenu__item:last-child & {
                     padding-bottom: 10px;

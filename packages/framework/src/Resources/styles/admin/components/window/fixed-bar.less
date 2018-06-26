@@ -1,11 +1,11 @@
 .window-fixed-bar {
     position: fixed;
-    z-index: 1010;
-    right: 0;
     bottom: 0;
     left: @width-panel;
-    background-color: @color-f;
+    right: 0;
+    z-index: 1010;
 
+    background-color: @color-f;
     border: 1px solid @color-border-dark;
 
     &--developer-mode {
@@ -23,18 +23,17 @@
     &__in {
         display: flex;
         width: 100%;
-        min-width: 768px;
         height: @height-fixed-bar;
         margin: 0 auto;
+        min-width: 768px;
         max-width: @width-content;
 
         background: @color-f;
 
         .window-fixed-bar--type-alert & {
-            text-align: left;
-
-            color: @color-f;
             background: @color-alert;
+            color: @color-f;
+            text-align: left;
         }
 
         .window-fixed-bar--top & {
@@ -44,11 +43,11 @@
 
     &__item {
         display: flex;
+        height: @height-fixed-bar;
+        padding-left: 30px;
+        padding-right: 30px;
         flex: 1;
         align-items: center;
-        height: @height-fixed-bar;
-        padding-right: 30px;
-        padding-left: 30px;
 
         border-left: 1px solid @color-border-dark;
 
@@ -85,8 +84,8 @@
 @media @query-lg {
     .window-fixed-bar {
         &__in {
-            text-align: right;
             width: @width-web;
+            text-align: right;
         }
     }
 }
