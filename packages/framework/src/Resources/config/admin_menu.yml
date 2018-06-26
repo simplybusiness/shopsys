@@ -276,6 +276,11 @@
       - label: 'Heureka - Verified by Customer'
         route: admin_heureka_setting
 
+- label: 'Settings'
+  route: admin_domain_list
+  type: settings
+  icon: gear
+
 - label: 'Frontend'
   type: domains
   icon: forward-page
@@ -287,7 +292,3 @@
   items:
   - label: 'My account'
     route: admin_administrator_myaccount
-- label: 'Settings'
-  route: admin_domain_list
-  type: settings
-  icon: gear
