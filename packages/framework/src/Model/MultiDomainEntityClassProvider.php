@@ -1,6 +1,6 @@
 <?php
 
-namespace Shopsys;
+namespace Shopsys\FrameworkBundle\Model;
 
 use Shopsys\FrameworkBundle\Component\Domain\Multidomain\MultiDomainEntityClassProviderInterface;
 use Shopsys\FrameworkBundle\Component\Setting\SettingValue;

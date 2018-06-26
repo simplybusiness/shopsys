@@ -26,6 +26,3 @@ services:
   Shopsys\ShopBundle\Model\Category\CurrentCategoryResolver: ~
 
   Shopsys\MultiDomainEntityClassProvider: ~
-
-  Shopsys\FrameworkBundle\Component\Domain\Multidomain\MultiDomainEntityClassProviderInterface:
-      alias: Shopsys\MultiDomainEntityClassProvider

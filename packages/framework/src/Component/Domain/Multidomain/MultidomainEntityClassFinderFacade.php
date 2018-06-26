@@ -20,7 +20,7 @@ class MultidomainEntityClassFinderFacade
     /**
      * @var \Shopsys\FrameworkBundle\Component\Domain\Multidomain\MultiDomainEntityClassProviderInterface
      */
-    private $multiDomainEntityClassProvider;
+    protected $multiDomainEntityClassProvider;
 
     /**
      * @var \Shopsys\FrameworkBundle\Component\Doctrine\NotNullableColumnsFinder

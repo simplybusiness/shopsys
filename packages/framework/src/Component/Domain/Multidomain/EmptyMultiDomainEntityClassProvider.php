@@ -2,7 +2,7 @@
 
 namespace Shopsys\FrameworkBundle\Component\Domain\Multidomain;
 
-class MultiDomainEntityClassProvider implements MultiDomainEntityClassProviderInterface
+class EmptyMultiDomainEntityClassProvider implements MultiDomainEntityClassProviderInterface
 {
     /**
      * @return string[]
