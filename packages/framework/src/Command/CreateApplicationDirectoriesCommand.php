@@ -2,12 +2,12 @@
 
 namespace Shopsys\FrameworkBundle\Command;
 
+use League\Flysystem\FilesystemInterface;
 use Shopsys\FrameworkBundle\Component\Image\DirectoryStructureCreator as ImageDirectoryStructureCreator;
 use Shopsys\FrameworkBundle\Component\UploadedFile\DirectoryStructureCreator as UploadedFileDirectoryStructureCreator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 class CreateApplicationDirectoriesCommand extends Command
 {
@@ -18,17 +18,7 @@ class CreateApplicationDirectoriesCommand extends Command
     protected static $defaultName = 'shopsys:create-directories';
 
     /**
-     * @var string
-     */
-    private $rootDirectory;
-
-    /**
-     * @var string
-     */
-    private $webDirectory;
-
-    /**
-     * @var \Symfony\Component\Filesystem\Filesystem
+     * @var \League\Flysystem\FilesystemInterface
      */
     private $filesystem;
 
@@ -45,19 +35,15 @@ class CreateApplicationDirectoriesCommand extends Command
     /**
      * @param string $rootDirectory
      * @param string $webDirectory
-     * @param \Symfony\Component\Filesystem\Filesystem $filesystem
+     * @param \League\Flysystem\FilesystemInterface $filesystem
      * @param \Shopsys\FrameworkBundle\Component\Image\DirectoryStructureCreator $imageDirectoryStructureCreator
      * @param \Shopsys\FrameworkBundle\Component\UploadedFile\DirectoryStructureCreator $uploadedFileDirectoryStructureCreator
      */
     public function __construct(
-        $rootDirectory,
-        $webDirectory,
-        Filesystem $filesystem,
+        FilesystemInterface $filesystem,
         ImageDirectoryStructureCreator $imageDirectoryStructureCreator,
         UploadedFileDirectoryStructureCreator $uploadedFileDirectoryStructureCreator
     ) {
-        $this->rootDirectory = $rootDirectory;
-        $this->webDirectory = $webDirectory;
         $this->filesystem = $filesystem;
         $this->imageDirectoryStructureCreator = $imageDirectoryStructureCreator;
         $this->uploadedFileDirectoryStructureCreator = $uploadedFileDirectoryStructureCreator;
@@ -85,21 +71,23 @@ class CreateApplicationDirectoriesCommand extends Command
     private function createMiscellaneousDirectories(OutputInterface $output)
     {
         $directories = [
-            $this->rootDirectory . '/build/stats',
-            $this->rootDirectory . '/docs/generated',
-            $this->rootDirectory . '/var/cache',
-            $this->rootDirectory . '/var/lock',
-            $this->rootDirectory . '/var/logs',
-            $this->rootDirectory . '/var/errorPages',
-            $this->webDirectory . '/assets/admin/styles',
-            $this->webDirectory . '/assets/frontend/styles',
-            $this->webDirectory . '/assets/scripts',
-            $this->webDirectory . '/content/feeds',
-            $this->webDirectory . '/content/sitemaps',
-            $this->webDirectory . '/content/wysiwyg',
+            '/build/stats',
+            '/docs/generated',
+            '/var/cache',
+            '/var/lock',
+            '/var/logs',
+            '/var/errorPages',
+            '/web/assets/admin/styles',
+            '/web/assets/frontend/styles',
+            '/web/assets/scripts',
+            '/web/content/feeds',
+            '/web/content/sitemaps',
+            '/web/content/wysiwyg',
         ];
 
-        $this->filesystem->mkdir($directories);
+        foreach ($directories as $directory) {
+            $this->filesystem->createDir($directory);
+        }
 
         $output->writeln('<fg=green>Miscellaneous application directories were successfully created.</fg=green>');
     }

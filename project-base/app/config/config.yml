@@ -137,6 +137,17 @@ monolog:
     console_output:
       type: console
 
+oneup_flysystem:
+  adapters:
+    basic_filesystem:
+      local:
+        directory: "%kernel.project_dir%"
+
+  filesystems:
+    basic_filesystem:
+      adapter: basic_filesystem
+      alias: "basic_filesystem"
+
 presta_sitemap:
   route_annotation_listener: false
 
