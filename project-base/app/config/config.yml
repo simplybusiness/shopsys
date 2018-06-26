@@ -142,11 +142,17 @@ oneup_flysystem:
     basic_filesystem:
       local:
         directory: "%kernel.project_dir%"
+    local_filesystem:
+      local:
+        directory: "/"
 
   filesystems:
     basic_filesystem:
       adapter: basic_filesystem
       alias: "basic_filesystem"
+    local_filesystem:
+      adapter: local_filesystem
+      alias: "local_filesystem"
 
 presta_sitemap:
   route_annotation_listener: false
