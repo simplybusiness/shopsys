@@ -29,6 +29,7 @@ services:
       - '%shopsys.demo_images_sql_url%'
       - '%shopsys.image_dir%'
       - '%shopsys.domain_images_dir%'
+      - '@local_filesystem'
 
   Shopsys\MigrationBundle\Command\GenerateMigrationCommand:
     arguments:

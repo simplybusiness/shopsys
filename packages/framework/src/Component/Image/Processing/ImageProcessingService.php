@@ -79,6 +79,8 @@ class ImageProcessingService
             throw new \Shopsys\FrameworkBundle\Component\Image\Processing\Exception\FileIsNotSupportedImageException($filepath);
         }
 
+        d('uploading, filepath - ' . $filepath . ', newfilepath ' . $newFilepath);
+
         $image = $this->createInterventionImage($filepath)->save($newFilepath);
         if (realpath($filepath) !== realpath($newFilepath)) {
             $this->filesystem->remove($filepath);

@@ -2,6 +2,7 @@
 
 namespace Shopsys\FrameworkBundle\Component\FileUpload;
 
+use League\Flysystem\FilesystemInterface;
 use Shopsys\FrameworkBundle\Component\String\TransformString;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -31,29 +32,37 @@ class FileUpload
     private $fileNamingConvention;
 
     /**
-     * @var \Symfony\Component\Filesystem\Filesystem
+     * @var \League\Flysystem\FilesystemInterface
      */
     private $filesystem;
+
+    /**
+     * @var \League\Flysystem\FilesystemInterface
+     */
+    private $localFilesystem;
 
     /**
      * @param string $temporaryDir
      * @param string $uploadedFileDir
      * @param string $imageDir
      * @param \Shopsys\FrameworkBundle\Component\FileUpload\FileNamingConvention $fileNamingConvention
-     * @param \Symfony\Component\Filesystem\Filesystem $filesystem
+     * @param \League\Flysystem\FilesystemInterface $filesystem
+     * @param \League\Flysystem\FilesystemInterface $localFilesystem
      */
     public function __construct(
         $temporaryDir,
         $uploadedFileDir,
         $imageDir,
         FileNamingConvention $fileNamingConvention,
-        Filesystem $filesystem
+        FilesystemInterface $filesystem,
+        FilesystemInterface $localFilesystem
     ) {
         $this->temporaryDir = $temporaryDir;
         $this->uploadedFileDir = $uploadedFileDir;
         $this->imageDir = $imageDir;
         $this->fileNamingConvention = $fileNamingConvention;
         $this->filesystem = $filesystem;
+        $this->localFilesystem = $localFilesystem;
     }
 
     /**
@@ -81,8 +90,8 @@ class FileUpload
         if (!empty($filename)) {
             $filepath = $this->getTemporaryFilepath($filename);
             try {
-                $this->filesystem->remove($filepath);
-            } catch (\Symfony\Component\Filesystem\Exception\IOException $ex) {
+                $this->localFilesystem->delete($filepath);
+            } catch (\League\Flysystem\FileNotFoundException $ex) {
                 return false;
             }
         }
@@ -187,6 +196,7 @@ class FileUpload
             );
 
             try {
+                d('trying to rename from ' . $sourceFilepath . ' - ' . $targetFilename);
                 $this->filesystem->rename($sourceFilepath, $targetFilename, true);
             } catch (\Symfony\Component\Filesystem\Exception\IOException $ex) {
                 $message = 'Failed to rename file from temporary directory to entity';

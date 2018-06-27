@@ -5,14 +5,15 @@ namespace Shopsys\FrameworkBundle\Command;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Exception;
+use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use League\Flysystem\MountManager;
+use League\Flysystem\ZipArchive\ZipArchiveAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use ZipArchive;
 
@@ -60,14 +61,14 @@ class ImageDemoCommand extends Command
     private $filesystem;
 
     /**
-     * @var \Symfony\Component\Filesystem\Filesystem
-     */
-    private $symfonyFilesystem;
-
-    /**
      * @var \League\Flysystem\MountManager
      */
     private $mountManager;
+
+    /**
+     * @var \League\Flysystem\FilesystemInterface
+     */
+    private $localFilesystem;
 
     /**
      * @param string $demoImagesArchiveUrl
@@ -76,7 +77,6 @@ class ImageDemoCommand extends Command
      * @param string $domainImagesDirectory
      * @param \League\Flysystem\FilesystemInterface $localFilesystem
      * @param \League\Flysystem\FilesystemInterface $filesystem
-     * @param \Symfony\Component\Filesystem\Filesystem $symfonyFilesystem
      * @param \Doctrine\ORM\EntityManagerInterface $em
      * @param \League\Flysystem\MountManager $mountManager
      */
@@ -87,7 +87,6 @@ class ImageDemoCommand extends Command
         $domainImagesDirectory,
         FilesystemInterface $localFilesystem,
         FilesystemInterface $filesystem,
-        Filesystem $symfonyFilesystem,
         EntityManagerInterface $em,
         MountManager $mountManager
     ) {
@@ -96,11 +95,11 @@ class ImageDemoCommand extends Command
         $this->imagesDirectory = $imagesDirectory;
         $this->domainImagesDirectory = $domainImagesDirectory;
         $this->filesystem = $filesystem;
-        $this->symfonyFilesystem = $symfonyFilesystem;
         $this->em = $em;
         $this->mountManager = $mountManager;
 
         parent::__construct();
+        $this->localFilesystem = $localFilesystem;
     }
 
     protected function configure()
@@ -117,8 +116,8 @@ class ImageDemoCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $localArchiveFilepath = sys_get_temp_dir() . '/' . 'demoImages.zip';
-        $temporaryImagesDirectory = sys_get_temp_dir() . $this->imagesDirectory;
-        $unpackedDomainImagesPath = $temporaryImagesDirectory . 'domain/';
+        $temporaryImagesDirectory = '/';
+        $unpackedDomainImagesPath = '/domain/';
 
         $isCompleted = false;
 
@@ -139,7 +138,7 @@ class ImageDemoCommand extends Command
         }
 
         if ($this->downloadImages($output, $this->demoImagesArchiveUrl, $localArchiveFilepath)) {
-            if ($this->unpackImages($output, $temporaryImagesDirectory, $localArchiveFilepath)) {
+            if ($this->unpackImages($output, $localArchiveFilepath)) {
                 $this->moveFiles($unpackedDomainImagesPath, $this->domainImagesDirectory);
                 $this->moveFiles($temporaryImagesDirectory, $this->imagesDirectory);
                 $this->loadDbChanges($output, $this->demoImagesSqlUrl);
@@ -147,7 +146,7 @@ class ImageDemoCommand extends Command
             }
         }
 
-        $this->cleanUp($output, [$localArchiveFilepath, $unpackedDomainImagesPath]);
+        $this->cleanUp($output, [$localArchiveFilepath]);
 
         return $isCompleted ? self::EXIT_CODE_OK : self::EXIT_CODE_ERROR;
     }
@@ -158,21 +157,18 @@ class ImageDemoCommand extends Command
      * @param string $localArchiveFilepath
      * @return bool
      */
-    private function unpackImages(OutputInterface $output, $imagesPath, $localArchiveFilepath)
+    private function unpackImages(OutputInterface $output, $localArchiveFilepath)
     {
-        $zipArchive = new ZipArchive();
+        try {
+            $zipFilesystem = new Filesystem(new ZipArchiveAdapter($localArchiveFilepath));
+            $this->mountManager->mountFilesystem('zip', $zipFilesystem);
+            $output->writeln('<fg=green>Unpacking of images archive was successfully completed</fg=green>');
 
-        $result = $zipArchive->open($localArchiveFilepath);
-        if ($result !== true) {
+            return true;
+        } catch (Exception $e) {
             $output->writeln('<fg=red>Unpacking of images archive failed</fg=red>');
             return false;
         }
-
-        $zipArchive->extractTo($imagesPath);
-        $zipArchive->close();
-        $output->writeln('<fg=green>Unpacking of images archive was successfully completed</fg=green>');
-
-        return true;
     }
 
     /**
@@ -208,7 +204,11 @@ class ImageDemoCommand extends Command
         $output->writeln('Start downloading demo images');
 
         try {
-            $this->symfonyFilesystem->copy($archiveUrl, $localArchiveFilepath, true);
+            if ($this->localFilesystem->has($localArchiveFilepath)) {
+                $this->localFilesystem->delete($localArchiveFilepath);
+            }
+
+            $this->localFilesystem->write($localArchiveFilepath, file_get_contents($archiveUrl));
         } catch (Exception $e) {
             $output->writeln('<fg=red>Downloading of demo images failed</fg=red>');
             $output->writeln('<fg=red>Exception: ' . $e->getMessage() . '</fg=red>');
@@ -227,7 +227,9 @@ class ImageDemoCommand extends Command
     private function cleanUp(OutputInterface $output, $pathsToRemove)
     {
         try {
-            $this->symfonyFilesystem->remove($pathsToRemove);
+            foreach ($pathsToRemove as $pathToRemove) {
+                $this->localFilesystem->delete($pathToRemove);
+            }
         } catch (Exception $e) {
             $output->writeln('<fg=red>Deleting of demo archive in cache failed</fg=red>');
             $output->writeln('<fg=red>Exception: ' . $e->getMessage() . '</fg=red>');
@@ -240,18 +242,24 @@ class ImageDemoCommand extends Command
      */
     private function moveFiles($origin, $target)
     {
-        $finder = new Finder();
-        $finder->files()->in($origin);
-        foreach ($finder as $file) {
-            $filepath = $origin . $file->getRelativePathname();
 
-            if (is_file($filepath)) {
-                $newFilepath = $target . $file->getRelativePathname();
+       $zipFilesystem = $this->mountManager->getFilesystem('zip');
+
+        $files = $zipFilesystem->listContents($origin, true);
+
+        if ($origin === '/domain/') {
+            d($files);
+        }
+
+        foreach ($files as $file) {
+            if ($file['type'] === "file") {
+                $filepath = $file['path'];
+                $newFilepath = $target . $filepath;
 
                 if ($this->filesystem->has($newFilepath)) {
                     $this->filesystem->delete($newFilepath);
                 }
-                $this->mountManager->move('local://' . $filepath, 'basic://' . $newFilepath);
+                $this->mountManager->move('zip://' . $filepath, 'basic://' . $newFilepath);
             }
         }
     }
