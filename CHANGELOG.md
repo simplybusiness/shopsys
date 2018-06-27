@@ -79,6 +79,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
     - the use of jQuery plugin for selectboxes was modified on Shopsys Framework side so options will now be seen 
 - [#243 - Admin: changed domain icon in e-shop domain administration can be saved](https://github.com/shopsys/shopsys/pull/243)
     - changed domain icon in e-shop domain administration can be saved 
+- [#277 - Tests fail when only one domain is set](https://github.com/shopsys/shopsys/issues/277)
 
 ### [shopsys/project-base]
 #### Changed
