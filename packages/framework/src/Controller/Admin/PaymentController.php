@@ -10,7 +10,7 @@ use Shopsys\FrameworkBundle\Model\AdminNavigation\Breadcrumb;
 use Shopsys\FrameworkBundle\Model\AdminNavigation\MenuItem;
 use Shopsys\FrameworkBundle\Model\Payment\Detail\PaymentDetailFactory;
 use Shopsys\FrameworkBundle\Model\Payment\Grid\PaymentGridFactory;
-use Shopsys\FrameworkBundle\Model\Payment\PaymentDataFactory;
+use Shopsys\FrameworkBundle\Model\Payment\PaymentDataFactoryInterface;
 use Shopsys\FrameworkBundle\Model\Payment\PaymentFacade;
 use Shopsys\FrameworkBundle\Model\Pricing\Currency\CurrencyFacade;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +33,7 @@ class PaymentController extends AdminBaseController
     private $paymentGridFactory;
 
     /**
-     * @var \Shopsys\FrameworkBundle\Model\Payment\PaymentDataFactory
+     * @var \Shopsys\FrameworkBundle\Model\Payment\PaymentDataFactoryInterface
      */
     private $paymentDataFactory;
 
@@ -48,7 +48,7 @@ class PaymentController extends AdminBaseController
     private $currencyFacade;
 
     public function __construct(
-        PaymentDataFactory $paymentDataFactory,
+        PaymentDataFactoryInterface $paymentDataFactory,
         CurrencyFacade $currencyFacade,
         PaymentFacade $paymentFacade,
         PaymentDetailFactory $paymentDetailFactory,
@@ -69,7 +69,7 @@ class PaymentController extends AdminBaseController
      */
     public function newAction(Request $request)
     {
-        $paymentData = $this->paymentDataFactory->createDefault();
+        $paymentData = $this->paymentDataFactory->create();
 
         $form = $this->createForm(PaymentEditFormType::class, $paymentData, [
             'payment_detail' => null,
